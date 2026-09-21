@@ -21,8 +21,9 @@ export function gradeExercise(exercise: Exercise, userAnswer: string): boolean {
 }
 
 export interface RunResult {
-  mode: 'mission' | 'boss' | 'mega'
+  mode: 'mission' | 'boss' | 'mega' | 'sublevel'
   tenseId?: string
+  sublevel?: number
   correct: number
   total: number
   percent: number

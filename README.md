@@ -31,6 +31,7 @@ npm run preview   # podgląd builda
 2. **Misja** — ćwiczenia (wybór, luki, przekształcenia, dopasowania, rozpoznawanie) z 3 sercami i combo
 3. **Boss** — test na punkty; 60% / 80% / 100% = 1★ / 2★ / 3★
 4. Odblokuj następny poziom za 1★; **Mega Boss** po 6★
+5. **Podpoziomy** (osobna strefa) — po 1★ na bossie: **10 etapów × 20 pytań** na każdy czas; kolejny etap od 60%
 
 ## Stack
 

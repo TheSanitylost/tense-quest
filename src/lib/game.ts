@@ -1,6 +1,14 @@
 import type { TenseId } from '../data/tenses'
 import { TENSES } from '../data/tenses'
 import { BADGES } from '../data/badges'
+import {
+  SUBLEVEL_PASS_PERCENT,
+  XP_SUBLEVEL_CLEAR,
+  XP_SUBLEVEL_PERFECT,
+  emptySublevelProgress,
+  normalizeSublevelProgress,
+  type SublevelProgress,
+} from './sublevels'
 
 export const SAVE_KEY = 'czasogra-save-v1'
 export const MISSION_LIVES = 3
@@ -17,6 +25,8 @@ export interface TenseProgress {
   missionBest: number
   bossBest: number
   stars: number
+  /** Best % for each of 10 practice sublevels (index 0 = sublevel 1). */
+  sublevels: SublevelProgress
 }
 
 export interface PlayerSave {
@@ -33,6 +43,7 @@ export function emptyTenseProgress(): TenseProgress {
     missionBest: 0,
     bossBest: 0,
     stars: 0,
+    sublevels: emptySublevelProgress(),
   }
 }
 
@@ -56,10 +67,19 @@ export function loadSave(): PlayerSave {
     if (!raw) return createDefaultSave()
     const parsed = JSON.parse(raw) as PlayerSave
     const base = createDefaultSave()
+    const tenseProgress = { ...base.tenseProgress }
+    for (const t of TENSES) {
+      const incoming = parsed.tenseProgress?.[t.id]
+      tenseProgress[t.id] = {
+        ...base.tenseProgress[t.id],
+        ...incoming,
+        sublevels: normalizeSublevelProgress(incoming?.sublevels),
+      }
+    }
     return {
       ...base,
       ...parsed,
-      tenseProgress: { ...base.tenseProgress, ...parsed.tenseProgress },
+      tenseProgress,
       badges: parsed.badges ?? [],
     }
   } catch {
@@ -205,6 +225,36 @@ export function applyMegaBossResult(
   next.badges = evaluateBadges(next, {
     megaCleared: opts.percent >= 60,
   })
+  return next
+}
+
+export function applySublevelResult(
+  save: PlayerSave,
+  tenseId: TenseId,
+  level: number,
+  opts: {
+    percent: number
+    xpGained: number
+    maxCombo: number
+  },
+): PlayerSave {
+  const next = structuredClone(save)
+  const idx = level - 1
+  if (idx < 0 || idx >= next.tenseProgress[tenseId].sublevels.length) return next
+
+  const prevBest = next.tenseProgress[tenseId].sublevels[idx] ?? 0
+  const firstClear =
+    prevBest < SUBLEVEL_PASS_PERCENT && opts.percent >= SUBLEVEL_PASS_PERCENT
+  const firstPerfect = prevBest < 100 && opts.percent >= 100
+
+  let bonus = 0
+  if (firstClear) bonus += XP_SUBLEVEL_CLEAR
+  if (firstPerfect) bonus += XP_SUBLEVEL_PERFECT
+
+  next.xp += opts.xpGained + bonus
+  next.bestCombo = Math.max(next.bestCombo, opts.maxCombo)
+  next.tenseProgress[tenseId].sublevels[idx] = Math.max(prevBest, opts.percent)
+  next.badges = evaluateBadges(next, { comboThisRun: opts.maxCombo })
   return next
 }
 

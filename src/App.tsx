@@ -5,6 +5,9 @@ import { LessonPage } from './pages/Lesson'
 import { MissionPage } from './pages/Mission'
 import { BossPage } from './pages/Boss'
 import { ResultsPage } from './pages/Results'
+import { SublevelsHubPage } from './pages/SublevelsHub'
+import { SublevelSelectPage } from './pages/SublevelSelect'
+import { SublevelRunPage } from './pages/SublevelRun'
 
 export default function App() {
   return (
@@ -12,6 +15,9 @@ export default function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/mapa" element={<MapPage />} />
+        <Route path="/podpoziomy" element={<SublevelsHubPage />} />
+        <Route path="/podpoziomy/:tenseId" element={<SublevelSelectPage />} />
+        <Route path="/podpoziomy/:tenseId/:level" element={<SublevelRunPage />} />
         <Route path="/lekcja/:tenseId" element={<LessonPage />} />
         <Route path="/misja/:tenseId" element={<MissionPage />} />
         <Route path="/boss/:tenseId" element={<BossPage />} />

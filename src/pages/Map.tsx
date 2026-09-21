@@ -8,6 +8,7 @@ import {
   isTenseUnlocked,
   totalStars,
 } from '../lib/game'
+import { clearedSublevelCount, isTenseCleared } from '../lib/sublevels'
 import { Shell } from '../components/ui'
 
 export function MapPage() {
@@ -17,11 +18,19 @@ export function MapPage() {
 
   return (
     <Shell save={save}>
-      <div className="mb-8">
-        <h1 className="font-display text-3xl font-bold sm:text-4xl">Mapa poziomów</h1>
-        <p className="mt-2 text-white/60">
-          Briefing → Misja → Boss. Odblokuj kolejny czas jedną gwiazdką.
-        </p>
+      <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="font-display text-3xl font-bold sm:text-4xl">Mapa poziomów</h1>
+          <p className="mt-2 text-white/60">
+            Briefing → Misja → Boss. Odblokuj kolejny czas jedną gwiazdką.
+          </p>
+        </div>
+        <Link
+          to="/podpoziomy"
+          className="rounded-xl border border-[var(--color-lime)]/35 bg-[var(--color-lime)]/10 px-4 py-2 text-sm font-bold text-[var(--color-lime)] hover:bg-[var(--color-lime)]/20"
+        >
+          Strefa podpoziomów →
+        </Link>
       </div>
 
       <ol className="relative space-y-0">
@@ -93,6 +102,14 @@ export function MapPage() {
                       <span className="rounded-lg border border-white/10 px-3 py-2 text-sm text-white/40">
                         Boss 🔒 (ukończ misję)
                       </span>
+                    )}
+                    {isTenseCleared(save, t.id) && (
+                      <Link
+                        to={`/podpoziomy/${t.id}`}
+                        className="rounded-lg border border-[#c8f547]/40 bg-[#c8f547]/10 px-3 py-2 text-sm font-semibold text-[#e8ff9a] hover:bg-[#c8f547]/20"
+                      >
+                        Podpoziomy {clearedSublevelCount(save, t.id)}/10
+                      </Link>
                     )}
                   </div>
                 ) : (

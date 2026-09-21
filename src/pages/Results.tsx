@@ -3,6 +3,10 @@ import { TENSES, getTense } from '../data/tenses'
 import { useSave } from '../hooks/useSave'
 import { victoryLine } from '../lib/game'
 import { loadResult } from '../lib/run'
+import {
+  SUBLEVELS_PER_TENSE,
+  isSublevelUnlocked,
+} from '../lib/sublevels'
 import { GhostButton, PrimaryButton, Shell, Stars } from '../components/ui'
 
 export function ResultsPage() {
@@ -18,24 +22,36 @@ export function ResultsPage() {
   const nextTense = tense
     ? TENSES.find((t) => t.order === tense.order + 1)
     : null
+  const nextSub =
+    result.mode === 'sublevel' && tense && result.sublevel
+      ? result.sublevel + 1
+      : null
+  const nextSubUnlocked =
+    tense && nextSub && nextSub <= SUBLEVELS_PER_TENSE
+      ? isSublevelUnlocked(save, tense.id, nextSub)
+      : false
 
   const title =
     result.mode === 'mega'
       ? 'Mega Boss'
       : result.mode === 'boss'
         ? 'Boss pokonany?'
-        : result.cleared
-          ? 'Misja ukończona!'
-          : 'Misja przerwana'
+        : result.mode === 'sublevel'
+          ? result.cleared
+            ? `Podpoziom ${result.sublevel} zaliczony!`
+            : `Podpoziom ${result.sublevel} — za mało`
+          : result.cleared
+            ? 'Misja ukończona!'
+            : 'Misja przerwana'
 
   return (
     <Shell save={save}>
-      <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-[#1fa6a0]/20 to-transparent p-6 sm:p-8">
-        <p className="text-xs font-semibold uppercase tracking-wider text-[#2dd4bf]">
-          Wynik
-        </p>
+      <div className="panel-hero rounded-3xl p-6 sm:p-8">
+        <p className="eyebrow">Wynik</p>
         <h1 className="mt-1 font-display text-3xl font-bold sm:text-4xl">{title}</h1>
-        <p className="mt-3 text-lg text-[#e8ff9a]">{victoryLine(result.percent)}</p>
+        <p className="mt-3 text-lg text-[var(--color-lime-soft)]">
+          {victoryLine(result.percent)}
+        </p>
 
         <div className="mt-6 flex flex-wrap items-end gap-6">
           <div>
@@ -57,7 +73,7 @@ export function ResultsPage() {
           )}
           <div>
             <p className="text-xs uppercase tracking-wider text-white/45">XP</p>
-            <p className="animate-pop font-display text-3xl font-semibold text-[#c8f547]">
+            <p className="animate-pop font-display text-3xl font-semibold text-[var(--color-lime)]">
               +{result.xpGained}
             </p>
           </div>
@@ -88,11 +104,33 @@ export function ResultsPage() {
             <Link to={`/boss/${tense.id}`}>
               <PrimaryButton>Rematch z bossem</PrimaryButton>
             </Link>
+            {result.starsEarned >= 1 && (
+              <Link to={`/podpoziomy/${tense.id}`}>
+                <PrimaryButton>Podpoziomy tego czasu</PrimaryButton>
+              </Link>
+            )}
             {result.starsEarned >= 1 && nextTense && (
               <Link to={`/lekcja/${nextTense.id}`}>
                 <GhostButton>Następny poziom: {nextTense.nameEn}</GhostButton>
               </Link>
             )}
+          </>
+        )}
+        {result.mode === 'sublevel' && tense && result.sublevel && (
+          <>
+            {!result.cleared && (
+              <Link to={`/podpoziomy/${tense.id}/${result.sublevel}`}>
+                <PrimaryButton>Spróbuj ponownie</PrimaryButton>
+              </Link>
+            )}
+            {nextSubUnlocked && nextSub && (
+              <Link to={`/podpoziomy/${tense.id}/${nextSub}`}>
+                <PrimaryButton>Następny podpoziom ({nextSub})</PrimaryButton>
+              </Link>
+            )}
+            <Link to={`/podpoziomy/${tense.id}`}>
+              <GhostButton>Lista podpoziomów</GhostButton>
+            </Link>
           </>
         )}
         {result.mode === 'mega' && (
@@ -110,18 +148,15 @@ export function ResultsPage() {
           <h2 className="font-display text-xl font-semibold">Przejrzyj błędy</h2>
           <ul className="mt-4 space-y-3">
             {result.mistakes.map((m, i) => (
-              <li
-                key={i}
-                className="rounded-2xl border border-white/10 bg-black/20 p-4"
-              >
+              <li key={i} className="panel p-4">
                 <p className="text-sm font-medium">{m.prompt}</p>
                 {m.sentence && (
-                  <p className="mt-1 text-sm text-[#e8ff9a]">{m.sentence}</p>
+                  <p className="mt-1 text-sm text-[var(--color-lime-soft)]">{m.sentence}</p>
                 )}
-                <p className="mt-2 text-sm text-[#ff5c5c]">
+                <p className="mt-2 text-sm text-[var(--color-danger)]">
                   Ty: {m.userAnswer || '—'}
                 </p>
-                <p className="text-sm text-[#c8f547]">OK: {m.expected}</p>
+                <p className="text-sm text-[var(--color-lime)]">OK: {m.expected}</p>
                 <p className="mt-1 text-xs text-white/50">{m.tip}</p>
               </li>
             ))}

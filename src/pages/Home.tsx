@@ -8,6 +8,7 @@ import {
   playerLevel,
   totalStars,
 } from '../lib/game'
+import { totalClearedSublevels } from '../lib/sublevels'
 import { GhostButton, PrimaryButton, Shell } from '../components/ui'
 
 export function HomePage() {
@@ -15,26 +16,30 @@ export function HomePage() {
   const stars = totalStars(save)
   const level = playerLevel(save.xp)
   const mega = isMegaBossUnlocked(save)
+  const subDone = totalClearedSublevels(save)
   const firstUnlocked = TENSES.find((t) => isTenseUnlocked(save, t.id)) ?? TENSES[0]!
 
   return (
     <Shell save={save}>
-      <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#0b3d3a]/80 via-[#071e1c]/60 to-transparent px-6 py-14 sm:px-10 sm:py-20">
-        <div className="pointer-events-none absolute -right-10 top-6 h-48 w-48 rounded-full bg-[#c8f547]/15 blur-3xl animate-float" />
-        <div className="pointer-events-none absolute -left-8 bottom-0 h-40 w-40 rounded-full bg-[#1fa6a0]/25 blur-3xl" />
+      <section className="panel-hero relative overflow-hidden px-6 py-14 sm:px-10 sm:py-20">
+        <div className="pointer-events-none absolute -right-10 top-6 h-52 w-52 rounded-full bg-[var(--color-lime)]/20 blur-3xl animate-float" />
+        <div className="pointer-events-none absolute -left-8 bottom-0 h-44 w-44 rounded-full bg-[var(--color-teal)]/30 blur-3xl animate-glow-pulse" />
 
-        <p className="font-display text-5xl font-bold tracking-tight text-[#c8f547] sm:text-6xl md:text-7xl">
+        <p className="font-display relative text-5xl font-bold tracking-tight text-[var(--color-lime)] sm:text-6xl md:text-7xl">
           CzasoGra
         </p>
-        <h1 className="mt-4 max-w-xl font-display text-2xl font-semibold leading-snug text-white text-balance sm:text-3xl">
+        <h1 className="relative mt-4 max-w-xl font-display text-2xl font-semibold leading-snug text-white text-balance sm:text-3xl">
           Pokonaj angielskie czasy jak bossy w grze.
         </h1>
-        <p className="mt-3 max-w-md text-base text-white/70 sm:text-lg">
-          Misje, combo, gwiazdki — wersja dla ósmoklasisty, nie nudny podręcznik.
+        <p className="relative mt-3 max-w-md text-base text-white/70 sm:text-lg">
+          Misje, combo, gwiazdki — potem osobna strefa 10×20 podpoziomów na każdy czas.
         </p>
-        <div className="mt-8 flex flex-wrap gap-3">
+        <div className="relative mt-8 flex flex-wrap gap-3">
           <Link to="/mapa">
             <PrimaryButton>Graj</PrimaryButton>
+          </Link>
+          <Link to="/podpoziomy">
+            <GhostButton>Podpoziomy</GhostButton>
           </Link>
           <Link to={`/lekcja/${firstUnlocked.id}`}>
             <GhostButton>Start: {firstUnlocked.nameEn}</GhostButton>
@@ -42,10 +47,11 @@ export function HomePage() {
         </div>
       </section>
 
-      <section className="mt-10 grid gap-4 sm:grid-cols-3">
+      <section className="mt-10 grid gap-4 sm:grid-cols-4">
         <Stat label="Poziom gracza" value={`Lvl ${level}`} />
         <Stat label="Gwiazdki" value={`★ ${stars} / 36`} />
         <Stat label="Best combo" value={`🔥 ${save.bestCombo}`} />
+        <Stat label="Podpoziomy" value={`▦ ${subDone}`} />
       </section>
 
       <section className="mt-10">
@@ -54,7 +60,7 @@ export function HomePage() {
             <h2 className="font-display text-2xl font-semibold">Mapa poziomów</h2>
             <p className="text-sm text-white/55">12 czasów. Odblokuj następny 1★ na bossie.</p>
           </div>
-          <Link to="/mapa" className="text-sm font-semibold text-[#c8f547] hover:underline">
+          <Link to="/mapa" className="text-sm font-semibold text-[var(--color-lime)] hover:underline">
             Otwórz mapę →
           </Link>
         </div>
@@ -68,20 +74,37 @@ export function HomePage() {
                 to={unlocked ? `/lekcja/${t.id}` : '/mapa'}
                 className={`min-w-[140px] shrink-0 rounded-2xl border px-4 py-4 transition ${
                   unlocked
-                    ? 'border-[#1fa6a0]/50 bg-[#1fa6a0]/10 hover:border-[#c8f547]/50'
+                    ? 'border-[var(--color-teal)]/50 bg-[var(--color-teal)]/10 hover:border-[var(--color-lime)]/50'
                     : 'border-white/10 bg-white/5 opacity-50'
                 }`}
               >
                 <p className="text-xs text-white/50">Lvl {t.order}</p>
                 <p className="mt-1 font-semibold leading-tight">{t.shortLabel}</p>
-                <p className="mt-2 text-[#c8f547]">{'★'.repeat(s)}{'☆'.repeat(3 - s)}</p>
+                <p className="mt-2 text-[var(--color-lime)]">
+                  {'★'.repeat(s)}
+                  {'☆'.repeat(3 - s)}
+                </p>
               </Link>
             )
           })}
         </div>
       </section>
 
-      <section className="mt-10 rounded-2xl border border-white/10 bg-black/20 p-5">
+      <section className="panel mt-10 px-5 py-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="font-display text-xl font-semibold">Strefa podpoziomów</h2>
+            <p className="text-sm text-white/55">
+              Po 1★ na bossie: 10 etapów × 20 pytań na każdy czas.
+            </p>
+          </div>
+          <Link to="/podpoziomy">
+            <PrimaryButton>Wejdź</PrimaryButton>
+          </Link>
+        </div>
+      </section>
+
+      <section className="panel mt-6 px-5 py-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 className="font-display text-xl font-semibold">Mega Boss</h2>
@@ -136,9 +159,11 @@ export function HomePage() {
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-4">
+    <div className="panel px-4 py-4">
       <p className="text-xs uppercase tracking-wider text-white/45">{label}</p>
-      <p className="mt-1 font-display text-2xl font-semibold text-[#e8ff9a]">{value}</p>
+      <p className="mt-1 font-display text-2xl font-semibold text-[var(--color-lime-soft)]">
+        {value}
+      </p>
     </div>
   )
 }
