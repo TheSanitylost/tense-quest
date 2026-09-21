@@ -12,7 +12,7 @@ import { totalClearedSublevels } from '../lib/sublevels'
 import { GhostButton, PrimaryButton, Shell } from '../components/ui'
 
 export function HomePage() {
-  const { save, reset } = useSave()
+  const { save, reset, activeProfile } = useSave()
   const stars = totalStars(save)
   const level = playerLevel(save.xp)
   const mega = isMegaBossUnlocked(save)
@@ -34,12 +34,23 @@ export function HomePage() {
         <p className="relative mt-3 max-w-md text-base text-white/70 sm:text-lg">
           Misje, combo, gwiazdki — potem osobna strefa 10×20 podpoziomów na każdy czas.
         </p>
+        {activeProfile && (
+          <p className="relative mt-4 text-sm text-white/55">
+            Grasz jako{' '}
+            <Link to="/uczniowie" className="font-semibold text-[var(--color-lime)] hover:underline">
+              {activeProfile.name}
+            </Link>
+          </p>
+        )}
         <div className="relative mt-8 flex flex-wrap gap-3">
           <Link to="/mapa">
             <PrimaryButton>Graj</PrimaryButton>
           </Link>
           <Link to="/podpoziomy">
             <GhostButton>Podpoziomy</GhostButton>
+          </Link>
+          <Link to="/uczniowie">
+            <GhostButton>Zapisy uczniów</GhostButton>
           </Link>
           <Link to={`/lekcja/${firstUnlocked.id}`}>
             <GhostButton>Start: {firstUnlocked.nameEn}</GhostButton>
@@ -143,14 +154,23 @@ export function HomePage() {
         </section>
       )}
 
-      <section className="mt-12 border-t border-white/10 pt-6">
+      <section className="mt-12 border-t border-white/10 pt-6 flex flex-wrap gap-3">
+        <Link to="/uczniowie">
+          <GhostButton className="text-sm">Zarządzaj zapisami uczniów</GhostButton>
+        </Link>
         <GhostButton
           className="text-sm opacity-70"
           onClick={() => {
-            if (confirm('Zresetować postęp gry?')) reset()
+            if (
+              confirm(
+                `Zresetować postęp gracza „${activeProfile?.name ?? 'uczeń'}”? Inne zapisy zostaną.`,
+              )
+            ) {
+              reset()
+            }
           }}
         >
-          Reset postępu
+          Reset postępu aktywnego
         </GhostButton>
       </section>
     </Shell>

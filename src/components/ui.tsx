@@ -1,4 +1,5 @@
 import { Link, NavLink } from 'react-router-dom'
+import { useSave } from '../hooks/useSave'
 import {
   playerLevel,
   totalStars,
@@ -9,6 +10,7 @@ import {
 import { totalClearedSublevels } from '../lib/sublevels'
 
 export function Hud({ save }: { save: PlayerSave }) {
+  const { activeProfile } = useSave()
   const level = playerLevel(save.xp)
   const into = xpIntoLevel(save.xp)
   const stars = totalStars(save)
@@ -24,12 +26,15 @@ export function Hud({ save }: { save: PlayerSave }) {
         >
           CzasoGra
         </Link>
-        <nav className="hidden items-center gap-4 sm:flex">
+        <nav className="hidden items-center gap-3 sm:flex">
           <NavLink to="/mapa" className="nav-link">
             Mapa
           </NavLink>
           <NavLink to="/podpoziomy" className="nav-link">
             Podpoziomy
+          </NavLink>
+          <NavLink to="/uczniowie" className="nav-link">
+            Uczniowie
           </NavLink>
         </nav>
         <div className="flex flex-1 items-center justify-end gap-2 sm:gap-3">
@@ -48,6 +53,13 @@ export function Hud({ save }: { save: PlayerSave }) {
             </div>
           </div>
           <div className="flex items-center gap-1.5 text-sm font-semibold">
+            <Link
+              to="/uczniowie"
+              className="chip max-w-[7.5rem] truncate px-2 py-1 text-xs text-white/90 hover:text-[var(--color-lime)] sm:max-w-[9rem] sm:text-sm"
+              title="Zarządzaj zapisami uczniów"
+            >
+              {activeProfile?.name ?? 'Uczeń'}
+            </Link>
             <span className="chip chip-lime px-2 py-1 text-xs sm:text-sm">★ {stars}</span>
             <span className="chip px-2 py-1 text-xs text-[var(--color-teal-bright)] sm:text-sm">
               🔥 {save.bestCombo}
@@ -84,11 +96,12 @@ export function Shell({
 export function PrimaryButton({
   children,
   className = '',
+  type = 'button',
   ...props
 }: React.ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
     <button
-      type="button"
+      type={type}
       className={`inline-flex min-h-12 items-center justify-center rounded-xl bg-[var(--color-lime)] px-5 py-3 text-base font-bold text-[var(--color-ink)] shadow-[0_10px_30px_rgba(212,243,92,0.22)] transition hover:brightness-110 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40 ${className}`}
       {...props}
     >
@@ -100,11 +113,12 @@ export function PrimaryButton({
 export function GhostButton({
   children,
   className = '',
+  type = 'button',
   ...props
 }: React.ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
     <button
-      type="button"
+      type={type}
       className={`inline-flex min-h-12 items-center justify-center rounded-xl border border-white/20 bg-white/5 px-5 py-3 text-base font-semibold text-white transition hover:border-white/35 hover:bg-white/10 active:scale-[0.98] disabled:opacity-40 ${className}`}
       {...props}
     >
