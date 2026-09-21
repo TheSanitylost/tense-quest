@@ -56,10 +56,8 @@ export function MapPage() {
                 {unlocked ? t.order : '🔒'}
               </div>
               <div
-                className={`flex-1 rounded-2xl border px-4 py-4 sm:px-5 ${
-                  unlocked
-                    ? 'border-white/15 bg-white/5'
-                    : 'border-white/5 bg-black/20 opacity-60'
+                className={`flex-1 panel px-4 py-4 sm:px-5 ${
+                  unlocked ? '' : 'opacity-55'
                 }`}
               >
                 <div className="flex flex-wrap items-start justify-between gap-2">

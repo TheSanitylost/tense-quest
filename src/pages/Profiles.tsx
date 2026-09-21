@@ -106,7 +106,7 @@ export function ProfilesPage() {
             onChange={(e) => setNameDraft(e.target.value)}
             maxLength={MAX_PROFILE_NAME_LENGTH}
             placeholder="Np. Ania Kowalska"
-            className="mt-2 w-full rounded-xl border border-white/15 bg-black/30 px-4 py-3 text-base text-white outline-none placeholder:text-white/35 focus:border-[var(--color-teal-bright)]"
+            className="input-field mt-2"
           />
         </label>
         <PrimaryButton type="submit" disabled={profiles.length >= MAX_PROFILES}>
@@ -145,7 +145,7 @@ export function ProfilesPage() {
                     value={editDraft}
                     onChange={(e) => setEditDraft(e.target.value)}
                     maxLength={MAX_PROFILE_NAME_LENGTH}
-                    className="w-full rounded-lg border border-white/20 bg-black/30 px-3 py-2 text-base outline-none focus:border-[var(--color-teal-bright)]"
+                    className="input-field"
                     autoFocus
                   />
                 ) : (

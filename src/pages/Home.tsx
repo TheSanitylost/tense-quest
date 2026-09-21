@@ -75,7 +75,7 @@ export function HomePage() {
             Otwórz mapę →
           </Link>
         </div>
-        <div className="flex gap-3 overflow-x-auto pb-2">
+        <div className="scroll-rail">
           {TENSES.map((t) => {
             const unlocked = isTenseUnlocked(save, t.id)
             const s = save.tenseProgress[t.id]?.stars ?? 0
@@ -83,17 +83,16 @@ export function HomePage() {
               <Link
                 key={t.id}
                 to={unlocked ? `/lekcja/${t.id}` : '/mapa'}
-                className={`min-w-[140px] shrink-0 rounded-2xl border px-4 py-4 transition ${
-                  unlocked
-                    ? 'border-[var(--color-teal)]/50 bg-[var(--color-teal)]/10 hover:border-[var(--color-lime)]/50'
-                    : 'border-white/10 bg-white/5 opacity-50'
-                }`}
+                className={`level-chip ${unlocked ? '' : 'is-locked'}`}
               >
-                <p className="text-xs text-white/50">Lvl {t.order}</p>
-                <p className="mt-1 font-semibold leading-tight">{t.shortLabel}</p>
-                <p className="mt-2 text-[var(--color-lime)]">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--color-teal-bright)]/80">
+                  Lvl {t.order}
+                </p>
+                <p className="mt-1 font-display text-lg font-semibold leading-tight">{t.shortLabel}</p>
+                <p className="mt-0.5 truncate text-xs text-white/45">{t.nameEn}</p>
+                <p className="mt-3 text-[var(--color-lime)]">
                   {'★'.repeat(s)}
-                  {'☆'.repeat(3 - s)}
+                  <span className="text-white/25">{'☆'.repeat(3 - s)}</span>
                 </p>
               </Link>
             )

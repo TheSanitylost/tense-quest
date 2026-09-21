@@ -61,11 +61,7 @@ function ChoiceExercise({ exercise, disabled, onSubmit }: Props) {
                 setPicked(opt)
                 onSubmit(opt)
               }}
-              className={`min-h-12 rounded-xl border px-4 py-3 text-left text-base font-medium transition ${
-                selected
-                  ? 'border-[#c8f547] bg-[#c8f547]/15'
-                  : 'border-white/15 bg-white/5 hover:border-white/30 hover:bg-white/10'
-              } disabled:opacity-70`}
+              className={`choice-option ${selected ? 'is-selected' : ''} disabled:opacity-70`}
             >
               {opt}
             </button>
@@ -96,7 +92,7 @@ function TextExercise({ exercise, disabled, onSubmit }: Props) {
           onKeyDown={(e) => {
             if (e.key === 'Enter') submit()
           }}
-          className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-base text-white outline-none ring-[#1fa6a0] placeholder:text-white/30 focus:ring-2"
+          className="input-field"
           placeholder="Wpisz odpowiedź…"
           autoComplete="off"
           spellCheck={false}

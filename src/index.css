@@ -23,6 +23,8 @@
 
   html {
     scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(62, 224, 208, 0.65) rgba(4, 22, 20, 0.55);
   }
 
   body {
@@ -51,6 +53,39 @@
   ::selection {
     background: rgba(212, 243, 92, 0.35);
     color: #041614;
+  }
+
+  /* Theme native scrollbars (fixes bright Windows white bars) */
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  *::-webkit-scrollbar-button {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+
+  *::-webkit-scrollbar-track {
+    margin: 2px;
+    background: rgba(4, 22, 20, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 999px;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #1aa39c 0%, #3ee0d0 45%, #d4f35c 100%);
+    border: 2px solid rgba(4, 22, 20, 0.85);
+    border-radius: 999px;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #3ee0d0 0%, #d4f35c 100%);
+  }
+
+  *::-webkit-scrollbar-corner {
+    background: transparent;
   }
 }
 
@@ -130,6 +165,101 @@
 
   .nav-link:hover {
     color: var(--color-lime-soft);
+  }
+
+  .scroll-rail {
+    position: relative;
+    display: flex;
+    gap: 0.85rem;
+    overflow-x: auto;
+    padding: 0.35rem 0.15rem 0.85rem;
+    scroll-snap-type: x proximity;
+    scrollbar-gutter: stable;
+  }
+
+  .scroll-rail::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  .level-chip {
+    position: relative;
+    min-width: 9.25rem;
+    flex-shrink: 0;
+    scroll-snap-align: start;
+    border-radius: 1.15rem;
+    border: 1px solid rgba(62, 224, 208, 0.28);
+    padding: 1rem 1rem 0.95rem;
+    background:
+      linear-gradient(160deg, rgba(62, 224, 208, 0.14), transparent 55%),
+      rgba(8, 36, 34, 0.78);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
+    transition:
+      border-color 0.2s ease,
+      transform 0.2s ease,
+      box-shadow 0.2s ease,
+      background 0.2s ease;
+  }
+
+  .level-chip:hover {
+    border-color: rgba(212, 243, 92, 0.55);
+    transform: translateY(-3px);
+    box-shadow: 0 16px 34px rgba(0, 0, 0, 0.36);
+  }
+
+  .level-chip.is-locked {
+    border-color: rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.28);
+    opacity: 0.55;
+    box-shadow: none;
+  }
+
+  .level-chip.is-locked:hover {
+    transform: none;
+  }
+
+  .input-field {
+    width: 100%;
+    border-radius: 0.9rem;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(0, 0, 0, 0.32);
+    padding: 0.8rem 1rem;
+    color: var(--color-cream);
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .input-field::placeholder {
+    color: rgba(255, 255, 255, 0.35);
+  }
+
+  .input-field:focus {
+    border-color: rgba(62, 224, 208, 0.7);
+    box-shadow: 0 0 0 3px rgba(26, 163, 156, 0.22);
+  }
+
+  .choice-option {
+    min-height: 3rem;
+    border-radius: 0.9rem;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(255, 255, 255, 0.04);
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-size: 1rem;
+    font-weight: 500;
+    transition:
+      border-color 0.15s ease,
+      background 0.15s ease,
+      transform 0.15s ease;
+  }
+
+  .choice-option:hover:not(:disabled) {
+    border-color: rgba(62, 224, 208, 0.45);
+    background: rgba(26, 163, 156, 0.12);
+  }
+
+  .choice-option.is-selected {
+    border-color: rgba(212, 243, 92, 0.75);
+    background: rgba(212, 243, 92, 0.14);
   }
 }
 
