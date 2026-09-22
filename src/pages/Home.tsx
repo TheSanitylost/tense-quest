@@ -32,7 +32,8 @@ export function HomePage() {
           Pokonaj angielskie czasy jak bossy w grze.
         </h1>
         <p className="relative mt-3 max-w-md text-base text-white/70 sm:text-lg">
-          Misje, combo, gwiazdki — potem osobna strefa 10×20 podpoziomów na każdy czas.
+          Strzelaj w poprawne formy, łącz pary laserem, wystrzeliwuj odpowiedzi — nauka
+          czasów jak arcade.
         </p>
         {activeProfile && (
           <p className="relative mt-4 text-sm text-white/55">

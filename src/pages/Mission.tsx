@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
-import { ExerciseCard } from '../components/ExerciseCard'
+import { ArcadePlay } from '../components/ArcadePlay'
 import { GhostButton, Hearts, Shell } from '../components/ui'
 import { getExercisesForTense } from '../data/exercises'
 import { getTense } from '../data/tenses'
@@ -170,7 +170,7 @@ export function MissionPage() {
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wider text-[#2dd4bf]">
-            Misja · {tense.nameEn}
+            Arena · {tense.nameEn}
           </p>
           <p className="text-sm text-white/55">
             Pytanie {index + 1} / {exercises.length}
@@ -204,7 +204,7 @@ export function MissionPage() {
               : ''
         }`}
       >
-        <ExerciseCard
+        <ArcadePlay
           key={current.id}
           exercise={current}
           disabled={locked}
@@ -212,12 +212,12 @@ export function MissionPage() {
         />
         {feedback === 'ok' && (
           <p className="mt-4 animate-pop font-semibold text-[#c8f547]">
-            Tak! +{comboXp(combo)} XP
+            Trafiony! +{comboXp(combo)} XP
           </p>
         )}
         {feedback === 'bad' && (
           <p className="mt-4 animate-pop text-[#ff5c5c]">
-            Nie tym razem. {current.tip}
+            Pudło. {current.tip}
           </p>
         )}
       </div>

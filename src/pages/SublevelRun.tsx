@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
-import { ExerciseCard } from '../components/ExerciseCard'
+import { ArcadePlay } from '../components/ArcadePlay'
 import { GhostButton, Shell } from '../components/ui'
 import { pickSublevelExercises } from '../data/sublevelBank'
 import { getTense } from '../data/tenses'
@@ -189,7 +189,7 @@ export function SublevelRunPage() {
               : ''
         }`}
       >
-        <ExerciseCard
+        <ArcadePlay
           key={current.id}
           exercise={current}
           disabled={locked}
@@ -197,12 +197,12 @@ export function SublevelRunPage() {
         />
         {feedback === 'ok' && (
           <p className="mt-4 animate-pop font-semibold text-[var(--color-lime)]">
-            Tak! +{comboXp(combo)} XP
+            Trafiony! +{comboXp(combo)} XP
           </p>
         )}
         {feedback === 'bad' && (
           <p className="mt-4 animate-pop text-[var(--color-danger)]">
-            Nie tym razem. {current.tip}
+            Pudło. {current.tip}
           </p>
         )}
       </div>

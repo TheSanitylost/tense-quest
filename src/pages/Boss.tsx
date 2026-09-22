@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
-import { ExerciseCard } from '../components/ExerciseCard'
+import { ArcadePlay } from '../components/ArcadePlay'
 import { GhostButton, Shell } from '../components/ui'
 import { EXERCISES, getExercisesForTense } from '../data/exercises'
 import { getTense } from '../data/tenses'
@@ -193,7 +193,7 @@ export function BossPage() {
       </div>
 
       <div className="rounded-2xl border border-[#ffb020]/30 bg-black/30 p-5 sm:p-6">
-        <ExerciseCard
+        <ArcadePlay
           key={current.id}
           exercise={current}
           disabled={locked}
@@ -202,8 +202,8 @@ export function BossPage() {
       </div>
 
       <p className="mt-4 text-xs text-white/40">
-        Soft timer — jak skończy się czas, kończysz z obecnym wynikiem. Bez serc,
-        czysta gra.
+        Soft timer — jak skończy się czas, kończysz z obecnym wynikiem. Arena arcade:
+        celownik / type-blast / link laser.
       </p>
     </Shell>
   )

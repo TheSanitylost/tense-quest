@@ -28,8 +28,8 @@ npm run preview   # podgląd builda
 ## Jak grać
 
 1. **Briefing** — krótka ściąga o czasie
-2. **Misja** — ćwiczenia (wybór, luki, przekształcenia, dopasowania, rozpoznawanie) z 3 sercami i combo
-3. **Boss** — test na punkty; 60% / 80% / 100% = 1★ / 2★ / 3★
+2. **Misja (arcade)** — **Celownik** (strzel w poprawną odpowiedź), **Type-Blast** (wpisz i wystrzel), **Link Laser** (połącz pary); 3 serca + combo
+3. **Boss** — ten sam arcade na punkty; 60% / 80% / 100% = 1★ / 2★ / 3★
 4. Odblokuj następny poziom za 1★; **Mega Boss** po 6★
 5. **Podpoziomy** (osobna strefa) — po 1★ na bossie: **10 etapów × 20 pytań** na każdy czas; kolejny etap od 60%
 6. **Zapisy uczniów** — wiele lokalnych profili (imię) na urządzeniu: twórz, zmieniaj nazwę, usuwaj, przełączaj (`#/uczniowie`)
