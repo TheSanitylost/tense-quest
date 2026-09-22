@@ -75,17 +75,27 @@ function TargetRange({ exercise, disabled, onSubmit }: Props) {
   const arenaRef = useRef<HTMLDivElement>(null)
   const shotId = useRef(0)
 
-  const layouts = useMemo(
-    () =>
-      options.map((_, i) => ({
-        top: 12 + ((i * 19 + 7) % 58),
-        left: 6 + ((i * 23 + 11) % 62),
-        delay: i * 0.35,
-        duration: 3.2 + (i % 3) * 0.55,
+  /** Fixed 2×2 slots so pills never stack on top of each other. */
+  const layouts = useMemo(() => {
+    const slots = [
+      { top: 10, left: 4 },
+      { top: 10, left: 52 },
+      { top: 48, left: 4 },
+      { top: 48, left: 52 },
+      { top: 28, left: 28 }, // rare 5th option
+      { top: 66, left: 28 },
+    ]
+    return options.map((_, i) => {
+      const slot = slots[i % slots.length]!
+      return {
+        top: slot.top,
+        left: slot.left,
+        delay: i * 0.25,
+        duration: 3.6 + (i % 3) * 0.4,
         drift: i % 2 === 0 ? 1 : -1,
-      })),
-    [options],
-  )
+      }
+    })
+  }, [options])
 
   function fire(opt: string, e: React.MouseEvent | React.TouchEvent) {
     if (disabled || picked) return
@@ -118,11 +128,11 @@ function TargetRange({ exercise, disabled, onSubmit }: Props) {
   return (
     <div
       ref={arenaRef}
-      className="arcade-arena relative h-[280px] overflow-hidden rounded-2xl sm:h-[320px]"
+      className="arcade-arena relative h-[300px] overflow-hidden rounded-2xl sm:h-[340px]"
       aria-label="Arena strzelania"
     >
       <div className="arcade-arena-grid pointer-events-none absolute inset-0" />
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/50 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-black/50 to-transparent" />
       <div className="pointer-events-none absolute bottom-3 left-1/2 z-10 -translate-x-1/2 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/40">
         Celuj i stuknij tarczę
       </div>
@@ -133,11 +143,11 @@ function TargetRange({ exercise, disabled, onSubmit }: Props) {
         const flashState = flash?.id === opt ? flash : null
         return (
           <button
-            key={opt}
+            key={`${i}-${opt}`}
             type="button"
             disabled={disabled || !!picked}
             onClick={(e) => fire(opt, e)}
-            className={`arcade-target absolute max-w-[46%] px-3 py-2.5 text-left text-sm font-semibold leading-snug sm:text-base ${
+            className={`arcade-target absolute w-[44%] max-w-[44%] px-3 py-2.5 text-center text-sm font-semibold leading-snug sm:text-base ${
               flashState?.ok
                 ? 'is-hit'
                 : flashState && !flashState.ok
@@ -152,10 +162,11 @@ function TargetRange({ exercise, disabled, onSubmit }: Props) {
               animationDelay: `${layout.delay}s`,
               animationDuration: `${layout.duration}s`,
               ['--drift' as string]: String(layout.drift),
+              zIndex: 2 + i,
             }}
           >
             <span className="arcade-target-ring" aria-hidden />
-            <span className="relative z-[1]">{opt}</span>
+            <span className="relative z-[1] break-words">{opt}</span>
           </button>
         )
       })}
