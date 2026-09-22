@@ -71,18 +71,29 @@ function TargetRange({ exercise, disabled, onSubmit }: Props) {
   )
   const [picked, setPicked] = useState<string | null>(null)
   const [flash, setFlash] = useState<{ id: string; ok: boolean } | null>(null)
-  const [shots, setShots] = useState<{ id: number; x: number; y: number }[]>([])
+  const [arenaPulse, setArenaPulse] = useState<'hit' | 'miss' | null>(null)
+  const [banner, setBanner] = useState<string | null>(null)
+  const [fx, setFx] = useState<
+    {
+      id: number
+      kind: 'muzzle' | 'spark' | 'laser'
+      x: number
+      y: number
+      ok?: boolean
+      angle?: number
+      length?: number
+    }[]
+  >([])
   const arenaRef = useRef<HTMLDivElement>(null)
-  const shotId = useRef(0)
+  const fxId = useRef(0)
 
-  /** Fixed 2×2 slots so pills never stack on top of each other. */
   const layouts = useMemo(() => {
     const slots = [
       { top: 10, left: 4 },
       { top: 10, left: 52 },
       { top: 48, left: 4 },
       { top: 48, left: 52 },
-      { top: 28, left: 28 }, // rare 5th option
+      { top: 28, left: 28 },
       { top: 66, left: 28 },
     ]
     return options.map((_, i) => {
@@ -97,6 +108,18 @@ function TargetRange({ exercise, disabled, onSubmit }: Props) {
     })
   }, [options])
 
+  function spawnFx(
+    items: Omit<(typeof fx)[number], 'id'>[],
+    ttl = 650,
+  ) {
+    const stamped = items.map((item) => ({ ...item, id: ++fxId.current }))
+    setFx((prev) => [...prev, ...stamped])
+    window.setTimeout(() => {
+      const ids = new Set(stamped.map((s) => s.id))
+      setFx((prev) => prev.filter((f) => !ids.has(f.id)))
+    }, ttl)
+  }
+
   function fire(opt: string, e: React.MouseEvent | React.TouchEvent) {
     if (disabled || picked) return
     const arena = arenaRef.current
@@ -105,37 +128,70 @@ function TargetRange({ exercise, disabled, onSubmit }: Props) {
     if (arena) {
       const rect = arena.getBoundingClientRect()
       const point =
-        'touches' in e
-          ? e.changedTouches[0]
-          : (e as React.MouseEvent)
+        'touches' in e ? e.changedTouches[0] : (e as React.MouseEvent)
       if (point) {
         x = ((point.clientX - rect.left) / rect.width) * 100
         y = ((point.clientY - rect.top) / rect.height) * 100
       }
     }
-    const id = ++shotId.current
-    setShots((s) => [...s, { id, x, y }])
-    window.setTimeout(() => {
-      setShots((s) => s.filter((sh) => sh.id !== id))
-    }, 420)
+
+    const originX = 50
+    const originY = 92
+    const dx = x - originX
+    const dy = y - originY
+    const angle = (Math.atan2(dy, dx) * 180) / Math.PI
+    const length = Math.min(90, Math.hypot(dx, dy) * 1.05)
 
     const ok = opt === exercise.answer || answersLooselyEqual(opt, exercise.answer)
+
+    spawnFx(
+      [
+        { kind: 'laser', x: originX, y: originY, angle, length, ok },
+        { kind: 'muzzle', x, y, ok },
+        { kind: 'spark', x, y, ok },
+      ],
+      ok ? 700 : 550,
+    )
+
     setFlash({ id: opt, ok })
+    setArenaPulse(ok ? 'hit' : 'miss')
+    setBanner(ok ? '✨ TRAFIONY!' : '💥 PUDŁO!')
     setPicked(opt)
-    window.setTimeout(() => onSubmit(opt), ok ? 280 : 420)
+
+    window.setTimeout(() => setArenaPulse(null), 500)
+    window.setTimeout(() => setBanner(null), 520)
+    window.setTimeout(() => onSubmit(opt), ok ? 520 : 580)
   }
 
   return (
     <div
       ref={arenaRef}
-      className="arcade-arena relative h-[300px] overflow-hidden rounded-2xl sm:h-[340px]"
+      className={`arcade-arena relative h-[300px] overflow-hidden rounded-2xl sm:h-[340px] ${
+        arenaPulse === 'hit' ? 'is-arena-hit' : arenaPulse === 'miss' ? 'is-arena-miss' : ''
+      }`}
       aria-label="Arena strzelania"
     >
       <div className="arcade-arena-grid pointer-events-none absolute inset-0" />
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-black/50 to-transparent" />
-      <div className="pointer-events-none absolute bottom-3 left-1/2 z-10 -translate-x-1/2 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/40">
+      <div className="arcade-arena-scan pointer-events-none absolute inset-0" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/55 to-transparent" />
+
+      <div className="arcade-cannon pointer-events-none absolute bottom-2 left-1/2 z-10 -translate-x-1/2">
+        <span className="arcade-cannon-core" />
+      </div>
+
+      <div className="pointer-events-none absolute bottom-3 left-1/2 z-10 -translate-x-1/2 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45">
         Celuj i stuknij tarczę
       </div>
+
+      {banner && (
+        <div
+          className={`arcade-banner pointer-events-none absolute left-1/2 top-1/2 z-30 -translate-x-1/2 -translate-y-1/2 ${
+            flash?.ok ? 'is-hit' : 'is-miss'
+          }`}
+        >
+          {banner}
+        </div>
+      )}
 
       {options.map((opt, i) => {
         const layout = layouts[i]!
@@ -166,18 +222,56 @@ function TargetRange({ exercise, disabled, onSubmit }: Props) {
             }}
           >
             <span className="arcade-target-ring" aria-hidden />
+            <span className="arcade-target-glow" aria-hidden />
             <span className="relative z-[1] break-words">{opt}</span>
           </button>
         )
       })}
 
-      {shots.map((s) => (
-        <span
-          key={s.id}
-          className="arcade-muzzle pointer-events-none absolute z-20"
-          style={{ left: `${s.x}%`, top: `${s.y}%` }}
-        />
-      ))}
+      {fx.map((f) => {
+        if (f.kind === 'laser') {
+          return (
+            <span
+              key={f.id}
+              className="arcade-laser-wrap pointer-events-none absolute z-20"
+              style={{
+                left: `${f.x}%`,
+                top: `${f.y}%`,
+                transform: `rotate(${f.angle}deg)`,
+              }}
+            >
+              <span
+                className={`arcade-laser ${f.ok ? 'is-hit' : 'is-miss'}`}
+                style={{ width: `${f.length}%` }}
+              />
+            </span>
+          )
+        }
+        if (f.kind === 'spark') {
+          return (
+            <span
+              key={f.id}
+              className={`arcade-spark-burst pointer-events-none absolute z-25 ${f.ok ? 'is-hit' : 'is-miss'}`}
+              style={{ left: `${f.x}%`, top: `${f.y}%` }}
+              aria-hidden
+            >
+              {Array.from({ length: 8 }, (_, n) => (
+                <i
+                  key={n}
+                  style={{ ['--i' as string]: n }}
+                />
+              ))}
+            </span>
+          )
+        }
+        return (
+          <span
+            key={f.id}
+            className={`arcade-muzzle pointer-events-none absolute z-20 ${f.ok ? 'is-hit' : 'is-miss'}`}
+            style={{ left: `${f.x}%`, top: `${f.y}%` }}
+          />
+        )
+      })}
     </div>
   )
 }
@@ -189,25 +283,49 @@ function answersLooselyEqual(a: string, b: string): boolean {
 function TypeBlast({ exercise, disabled, onSubmit }: Props) {
   const [value, setValue] = useState('')
   const [charging, setCharging] = useState(false)
+  const [heat, setHeat] = useState(0)
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     inputRef.current?.focus()
   }, [exercise.id])
 
+  useEffect(() => {
+    if (!value.trim()) {
+      setHeat(0)
+      return
+    }
+    setHeat(Math.min(100, 18 + value.trim().length * 7))
+  }, [value])
+
   function fire() {
     if (disabled || !value.trim() || charging) return
     setCharging(true)
+    setHeat(100)
     window.setTimeout(() => {
       onSubmit(value)
-    }, 220)
+    }, 420)
   }
 
   return (
-    <div className="arcade-type-bay rounded-2xl border border-white/10 bg-black/30 p-4 sm:p-5">
-      <div className="mb-4 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[var(--color-teal-bright)]">
-        <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-[var(--color-lime)]" />
-        Działo słowne naładowane
+    <div
+      className={`arcade-type-bay relative overflow-hidden rounded-2xl border border-white/10 bg-black/30 p-4 sm:p-5 ${
+        charging ? 'is-blasting' : ''
+      }`}
+    >
+      {charging && <div className="arcade-type-shockwave" aria-hidden />}
+      <div className="mb-4 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[var(--color-teal-bright)]">
+          <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-[var(--color-lime)]" />
+          Działo słowne
+        </div>
+        <span className="text-xs font-bold text-[var(--color-lime)]">{heat}% charge</span>
+      </div>
+      <div className="mb-4 h-2.5 overflow-hidden rounded-full bg-white/10">
+        <div
+          className="arcade-charge-bar h-full rounded-full"
+          style={{ width: `${heat}%` }}
+        />
       </div>
       <label className="block space-y-2">
         <span className="text-sm text-white/60">Amunicja (odpowiedź)</span>
@@ -231,7 +349,7 @@ function TypeBlast({ exercise, disabled, onSubmit }: Props) {
         onClick={fire}
         className={`arcade-fire-btn mt-4 w-full ${charging ? 'is-firing' : ''}`}
       >
-        {charging ? 'WYSTRZAŁ…' : '🔥 WYSTRZEL ODPOWIEDŹ'}
+        {charging ? '🚀 WYSTRZAŁ…' : '🔥 WYSTRZEL ODPOWIEDŹ'}
       </button>
       <p className="mt-3 text-center text-xs text-white/40">
         Enter też strzela · don’t / doesn’t przechodzą
@@ -250,6 +368,7 @@ function LinkLaser({ exercise, disabled, onSubmit }: Props) {
   const [selectedLeft, setSelectedLeft] = useState<string | null>(null)
   const [matched, setMatched] = useState<Record<string, string>>({})
   const [beam, setBeam] = useState(false)
+  const [burstLabel, setBurstLabel] = useState<string | null>(null)
 
   const remainingRights = rights.filter(
     (r) => !Object.values(matched).includes(r),
@@ -259,7 +378,9 @@ function LinkLaser({ exercise, disabled, onSubmit }: Props) {
   function tryMatch(right: string) {
     if (!selectedLeft || disabled) return
     setBeam(true)
-    window.setTimeout(() => setBeam(false), 280)
+    setBurstLabel(`${selectedLeft} ⟷ ${right}`)
+    window.setTimeout(() => setBeam(false), 420)
+    window.setTimeout(() => setBurstLabel(null), 480)
     const next = { ...matched, [selectedLeft]: right }
     setMatched(next)
     setSelectedLeft(null)
@@ -268,12 +389,17 @@ function LinkLaser({ exercise, disabled, onSubmit }: Props) {
         left,
         right: r,
       }))
-      window.setTimeout(() => onSubmit(JSON.stringify(userPairs)), 200)
+      window.setTimeout(() => onSubmit(JSON.stringify(userPairs)), 360)
     }
   }
 
   return (
     <div className={`relative ${beam ? 'arcade-beam-flash' : ''}`}>
+      {burstLabel && (
+        <div className="arcade-link-toast pointer-events-none absolute left-1/2 top-0 z-20 -translate-x-1/2 -translate-y-1">
+          ⚡ {burstLabel}
+        </div>
+      )}
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <p className="text-xs uppercase tracking-wider text-white/50">Źródło</p>
@@ -293,7 +419,7 @@ function LinkLaser({ exercise, disabled, onSubmit }: Props) {
           {Object.entries(matched).map(([l, r]) => (
             <div
               key={l}
-              className="rounded-xl border border-[var(--color-teal)]/45 bg-[var(--color-teal)]/15 px-3 py-2 text-sm font-medium text-[var(--color-lime-soft)]"
+              className="arcade-link-done rounded-xl border border-[var(--color-teal)]/45 bg-[var(--color-teal)]/15 px-3 py-2 text-sm font-medium text-[var(--color-lime-soft)]"
             >
               {l} ⟷ {r}
             </div>
